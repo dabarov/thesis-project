@@ -1,0 +1,3 @@
+[submodule "ycb_gazebo_sdf"]
+	path = models/ycb_gazebo_sdf
+	url = https://github.com/okabedev/ycb_gazebo_sdf.git
