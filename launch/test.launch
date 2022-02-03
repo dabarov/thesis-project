@@ -1,0 +1,7 @@
+<launch>
+
+    <arg name="robot_name" default="my_gen3_lite"/>
+    <arg name="start_delay_seconds" default="0"/>
+
+    <node name="moveit_control" pkg="gen3lite_pickplace" type="test_script.py" ns="$(arg robot_name)" output="screen" launch-prefix="bash -c 'sleep $(arg start_delay_seconds); $0 $@' "/>
+</launch>

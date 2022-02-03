@@ -3,7 +3,8 @@
 import sys
 import rospy
 import moveit_commander
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Pose, PoseStamped
+from moveit_msgs.msg import CollisionObject
 
 
 def init_rosnode():
@@ -16,6 +17,14 @@ def init_commanders(ns):
     robot = moveit_commander.RobotCommander("robot_description")
     return arm, robot
 
+def init_scene():
+    scene = moveit_commander.PlanningSceneInterface()
+    table_pose = PoseStamped()
+    table_pose.header.frame_id = "cafe_table"
+    table_pose.pose.position.y = 0.7
+    table_pose.pose.position.z = -0.778272
+    scene.add_box("cafe_table", table_pose, size=(0.913, 0.913, 0.82))
+    return scene
 
 def reach_named_position(arm, target):
     arm.set_named_target(target)
@@ -47,10 +56,11 @@ def close_gripper(gripper, value):
 
 def main():
     init_rosnode()
+    scene = init_scene()
     namespace = rospy.get_namespace()
     arm, robot = init_commanders(ns=namespace)
     gripper = robot.get_joint("right_finger_bottom_joint")
-
+    print(scene.get_known_object_names())
     reach_named_position(arm=arm, target="home")
 
     # dummy for proper path

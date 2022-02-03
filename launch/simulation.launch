@@ -7,9 +7,14 @@
     <arg name="start_rviz" default="true" />
 
     <!-- Initial position in Gazebo -->
-    <arg name="x0" default="0" />
+    <!-- <arg name="x0" default="0" />
     <arg name="y0" default="0.5" />
-    <arg name="z0" default="0.778272" />
+    <arg name="z0" default="0.778272" /> -->
+
+    <!-- Test parameters -->
+    <arg name="x0" default="0" />
+    <arg name="y0" default="0" />
+    <arg name="z0" default="0" />
 
     <!-- Arm type -->
     <arg name="arm" default="gen3_lite" />

@@ -78,49 +78,52 @@
         </spherical_coordinates>
 
         <!-- Models -->
-        <include>
-            <uri>model://005_tomato_soup_can_textured</uri>
-            <pose>0.0 1.0 0.778272 0 0 0</pose>
-        </include>
-
-        <include>
-            <uri>model://006_mustard_bottle_textured</uri>
-            <pose>0.2 1.0 0.778272 0 0 0</pose>
-        </include>
-
-        <include>
-            <uri>model://003_cracker_box_textured</uri>
-            <pose>-0.2 1.0 0.778272 0 0 0</pose>
-        </include>
-
-        <include>
-            <uri>model://021_bleach_cleanser_textured</uri>
-            <pose>0.0 1.2 0.778272 0 0 0</pose>
-        </include>
-
-        <include>
-            <uri>model://025_mug_textured</uri>
-            <pose>0.2 1.2 0.778272 0 0 0</pose>
-        </include>
-
-        <include>
-            <uri>model://026_sponge_textured</uri>
-            <pose>-0.2 1.2 0.778272 0 0 0</pose>
-        </include>
-
-        <include>
-            <uri>model://017_orange_textured</uri>
-            <pose>0.0 1.4 0.778272 0 0 0</pose>
-        </include>
-
-        <include>
-            <uri>model://cafe_table</uri>
-            <pose>0.0 1.2 0.0 0 0 0</pose>
-        </include>
-
-        <include>
-            <uri>model://cafe_table</uri>
-            <pose>0.7 0.0 0.0 0 0 0</pose>
-        </include>
+        <model name="W1">
+            <pose>0.3 0.3 0.0 0 -0 0</pose>
+            <link name="box1">
+                <inertial>
+                    <mass>1</mass>
+                    <inertia>
+                        <ixx>1</ixx>
+                        <ixy>0</ixy>
+                        <ixz>0</ixz>
+                        <iyy>1</iyy>
+                        <iyz>0</iyz>
+                        <izz>1</izz>
+                    </inertia>
+                </inertial>
+                <collision name="collision">
+                    <geometry>
+                        <box>
+                            <size>0.05 0.05 0.2</size>
+                        </box>
+                    </geometry>
+                    <max_contacts>10</max_contacts>
+                    <surface>
+                        <bounce />
+                        <friction>
+                            <ode />
+                        </friction>
+                        <contact>
+                            <ode />
+                        </contact>
+                    </surface>
+                </collision>
+                <visual name="visual">
+                    <geometry>
+                        <box>
+                            <size>0.05 0.05 0.2</size>
+                        </box>
+                    </geometry>
+                    <material>
+                        <script>
+                            <uri>file://media/materials/scripts/gazebo.material</uri>
+                            <name>Gazebo/Grey</name>
+                        </script>
+                    </material>
+                </visual>
+                <gravity>1</gravity>
+            </link>
+        </model>
     </world>
 </gazebo>
