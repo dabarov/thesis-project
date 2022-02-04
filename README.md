@@ -1,11 +1,21 @@
 # My master thesis project
 
+### Prerequisites
+```sh
+sudo apt install python3 python3-pip
+sudo python3 -m pip install conan
+conan config set general.revisions_enabled=1
+conan profile new default --detect > /dev/null
+conan profile update settings.compiler.libcxx=libstdc++11 default
+```
+
 ### Installation
 In workspace's ```src``` folder:
 
 ```sh
 git clone --recurse-submodules https://github.com/dabarov/thesis-project
 git clone -b melodic-devel https://github.com/Kinovarobotics/ros_kortex
+rosdep install --from-paths src --ignore-src -y
 ```
 
 In workspace:
