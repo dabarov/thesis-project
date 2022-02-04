@@ -18,9 +18,9 @@ SCENE = moveit_commander.PlanningSceneInterface()
 X, Y, Z, W = 0, 1, 2, 3
 OPEN = 0.9
 CLOSE = 0.35
-OBJECT_POSITIONS = {"box1": [0.3, 0.3, 0.15]}
+OBJECT_POSITIONS = {"target_1": [0.05, 0.35, 0.3]}
 PICK_ORIENTATION_EULER = [-math.pi / 2, 0, 0]
-PLACE_ORIENTATION_EULER = [0, -math.pi / 2, 0]
+PLACE_ORIENTATION_EULER = [-math.pi / 2, 0, -math.pi / 2]
 
 
 def init_rosnode():
@@ -57,21 +57,29 @@ def create_collision_object(id, dimensions, pose):
 def add_collision_objects():
     upper_limit = create_collision_object(id="upper_limit",
                                           dimensions=[1, 1, 0.01],
-                                          pose=[0, 0.3, 0.65])
+                                          pose=[0, 0.2, 0.65])
     back_limit = create_collision_object(id="back_limit",
                                          dimensions=[1, 0.01, 0.65],
-                                         pose=[0, -0.2, 0.325])
-    lower_limit = create_collision_object(id="lower_limit",
+                                         pose=[0, -0.3, 0.325])
+    floor_limit = create_collision_object(id="floor_limit",
                                           dimensions=[10, 10, 0.2],
                                           pose=[0, 0, -0.1])
-    box1 = create_collision_object(id="box1",
-                                   dimensions=[0.05, 0.05, 0.2],
-                                   pose=[0.3, 0.3, 0.1])
+    table_1 = create_collision_object(id="table_1",
+                                      dimensions=[0.3, 0.6, 0.2],
+                                      pose=[0.45, 0.3, 0.1])
+    table_2 = create_collision_object(id="table_2",
+                                      dimensions=[0.3, 0.3, 0.2],
+                                      pose=[0.15, 0.45, 0.1])
+    target_1 = create_collision_object(id="target_1",
+                                      dimensions=[0.02, 0.02, 0.2],
+                                      pose=[0.05, 0.35, 0.3])
 
     SCENE.add_object(upper_limit)
-    SCENE.add_object(lower_limit)
+    SCENE.add_object(floor_limit)
     SCENE.add_object(back_limit)
-    SCENE.add_object(box1)
+    SCENE.add_object(table_1)
+    SCENE.add_object(table_2)
+    SCENE.add_object(target_1)
 
 
 def reach_named_position(arm, target):
@@ -79,7 +87,7 @@ def reach_named_position(arm, target):
     return arm.execute(arm.plan(), wait=True)
 
 
-def reach_pose(arm, pose, tolerance=0.01):
+def reach_pose(arm, pose, tolerance=0.001):
     arm.set_pose_target(pose)
     arm.set_goal_position_tolerance(tolerance)
     return arm.go(wait=True)
@@ -100,11 +108,12 @@ def main():
     robot = moveit_commander.RobotCommander("robot_description")
     gripper = robot.get_joint("right_finger_bottom_joint")
     arm.set_num_planning_attempts(5)
+    print(arm.get_current_pose())
     # PICK
     pose = Pose()
-    pose.position.x = OBJECT_POSITIONS["box1"][X]
-    pose.position.y = OBJECT_POSITIONS["box1"][Y] - 0.1
-    pose.position.z = OBJECT_POSITIONS["box1"][Z]
+    pose.position.x = OBJECT_POSITIONS["target_1"][X]
+    pose.position.y = OBJECT_POSITIONS["target_1"][Y] - 0.1
+    pose.position.z = OBJECT_POSITIONS["target_1"][Z]
     orientation = quaternion_from_euler(*PICK_ORIENTATION_EULER)
     pose.orientation.x = orientation[X]
     pose.orientation.y = orientation[Y]
@@ -115,22 +124,25 @@ def main():
     open_gripper(gripper=gripper)
     pose.position.y += 0.1
     reach_pose(arm, pose)
-    SCENE.remove_world_object("box1")
+    
+    arm.attach_object("target_1")
     close_gripper(gripper=gripper)
 
     # PLACE
-    pose.position.z += 0.1
-    reach_pose(arm, pose)
-    pose.position.x = 0.1
-    reach_pose(arm, pose)
-    pose.position.z -= 0.1
+    pose.position.x = OBJECT_POSITIONS["target_1"][Y]
+    pose.position.y = OBJECT_POSITIONS["target_1"][X]
+    pose.position.z = OBJECT_POSITIONS["target_1"][Z]
+    orientation = quaternion_from_euler(*PLACE_ORIENTATION_EULER)
+    pose.orientation.x = orientation[X]
+    pose.orientation.y = orientation[Y]
+    pose.orientation.z = orientation[Z]
+    pose.orientation.w = orientation[W]
+
     reach_pose(arm, pose)
     open_gripper(gripper=gripper)
-    position = get_model_positions()
-    box1 = create_collision_object(id="box1",
-                                   dimensions=[0.05, 0.05, 0.2],
-                                   pose=[position.x, position.y, position.z])
-    SCENE.add_object(box1)
+    reach_pose(arm, pose)
+    
+    arm.detach_object("target_1")
     reach_named_position(arm=arm, target="home")
 
 
