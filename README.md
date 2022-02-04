@@ -17,14 +17,16 @@ source devel/setup.bash
 
 ### Usage
 
+**Currently everything works in testing environment. Then it will be tranfered to main files.**
+
 To run simulation:
 
 ```sh
 roslaunch gen3lite_pickplace simulation.launch   
 ```
 
-To run control unit:
+To run control unit (currently in testing file) :
 
 ```sh
-roslaunch gen3lite_pickplace moveit_control.launch
+roslaunch gen3lite_pickplace test.launch
 ```
