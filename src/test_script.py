@@ -2,6 +2,7 @@
 
 import sys
 import math
+from unicodedata import name
 import rospy
 import moveit_commander
 
@@ -17,10 +18,13 @@ FRAME_ID = "base_link"
 SCENE = moveit_commander.PlanningSceneInterface()
 X, Y, Z, W = 0, 1, 2, 3
 OPEN = 0.9
-CLOSE = 0.35
+CLOSE = 0.126
 OBJECT_POSITIONS = {"target_1": [0.05, 0.35, 0.3],
                     "target_2": [0.15, 0.35, 0.3],
-                    "target_3": [0.25, 0.35, 0.3]}
+                    "target_3": [0.25, 0.35, 0.3],
+                    "target_4": [0.05, 0.45, 0.3],
+                    "target_5": [0.15, 0.45, 0.3],
+                    "target_6": [0.25, 0.45, 0.3]}
 PICK_ORIENTATION_EULER = [-math.pi / 2, 0, 0]
 PLACE_ORIENTATION_EULER = [-math.pi / 2, 0, -math.pi / 2]
 
@@ -81,6 +85,15 @@ def add_collision_objects():
     target_3 = create_collision_object(id="target_3",
                                        dimensions=[0.02, 0.02, 0.2],
                                        pose=[0.25, 0.35, 0.3])
+    target_4 = create_collision_object(id="target_4",
+                                       dimensions=[0.02, 0.02, 0.2],
+                                       pose=[0.05, 0.45, 0.3])
+    target_5 = create_collision_object(id="target_5",
+                                       dimensions=[0.02, 0.02, 0.2],
+                                       pose=[0.15, 0.45, 0.3])
+    target_6 = create_collision_object(id="target_6",
+                                       dimensions=[0.02, 0.02, 0.2],
+                                       pose=[0.25, 0.45, 0.3])
     SCENE.add_object(upper_limit)
     SCENE.add_object(floor_limit)
     SCENE.add_object(back_limit)
@@ -89,6 +102,9 @@ def add_collision_objects():
     SCENE.add_object(target_1)
     SCENE.add_object(target_2)
     SCENE.add_object(target_3)
+    SCENE.add_object(target_4)
+    SCENE.add_object(target_5)
+    SCENE.add_object(target_6)
 
 
 def reach_named_position(arm, target):
@@ -110,6 +126,42 @@ def close_gripper(gripper):
     gripper.move(gripper.max_bound() * CLOSE, True)
 
 
+def pick_object(name, arm, gripper):
+    pose = Pose()
+    pose.position.x = OBJECT_POSITIONS[name][X]
+    pose.position.y = OBJECT_POSITIONS[name][Y] - 0.1
+    pose.position.z = OBJECT_POSITIONS[name][Z]
+    orientation = quaternion_from_euler(*PICK_ORIENTATION_EULER)
+    pose.orientation.x = orientation[X]
+    pose.orientation.y = orientation[Y]
+    pose.orientation.z = orientation[Z]
+    pose.orientation.w = orientation[W]
+    reach_pose(arm, pose)
+    open_gripper(gripper=gripper)
+    pose.position.y += 0.1
+    reach_pose(arm, pose)
+    close_gripper(gripper=gripper)
+    # arm.attach_object(name)
+
+
+def place_object(name, arm, gripper, row=1):
+    rows = [0.35, 0.45]
+    pose = Pose()
+    pose.position.x = rows[row]
+    pose.position.y = OBJECT_POSITIONS[name][X]
+    pose.position.z = OBJECT_POSITIONS[name][Z]
+    orientation = quaternion_from_euler(*PLACE_ORIENTATION_EULER)
+    pose.orientation.x = orientation[X]
+    pose.orientation.y = orientation[Y]
+    pose.orientation.z = orientation[Z]
+    pose.orientation.w = orientation[W]
+
+    reach_pose(arm, pose)
+    open_gripper(gripper=gripper)
+    reach_pose(arm, pose)
+    arm.detach_object(name)
+
+
 def main():
     init_rosnode()
     arm = moveit_commander.MoveGroupCommander("arm", ns=rospy.get_namespace())
@@ -124,113 +176,54 @@ def main():
     SCENE.remove_world_object("target_1")
     SCENE.remove_world_object("target_2")
     SCENE.remove_world_object("target_3")
+    SCENE.remove_world_object("target_4")
+    SCENE.remove_world_object("target_5")
+    SCENE.remove_world_object("target_6")
     reach_named_position(arm=arm, target="home")
     add_collision_objects()
-    ## TARGET1
+    # TARGET1
     # PICK
-    pose = Pose()
-    pose.position.x = OBJECT_POSITIONS["target_1"][X]
-    pose.position.y = OBJECT_POSITIONS["target_1"][Y] - 0.1
-    pose.position.z = OBJECT_POSITIONS["target_1"][Z]
-    orientation = quaternion_from_euler(*PICK_ORIENTATION_EULER)
-    pose.orientation.x = orientation[X]
-    pose.orientation.y = orientation[Y]
-    pose.orientation.z = orientation[Z]
-    pose.orientation.w = orientation[W]
+    pick_object(name="target_1", arm=arm, gripper=gripper)
 
-    reach_pose(arm, pose)
-    open_gripper(gripper=gripper)
-    pose.position.y += 0.1
-    reach_pose(arm, pose)
+    # # PLACE
+    # place_object(name="target_1", arm=arm, gripper=gripper)
 
-    arm.attach_object("target_1")
-    close_gripper(gripper=gripper)
+    # # TARGET3
+    # # PICK
+    # pick_object(name="target_3", arm=arm, gripper=gripper)
 
-    # PLACE
-    pose.position.x = OBJECT_POSITIONS["target_1"][Y]
-    pose.position.y = OBJECT_POSITIONS["target_1"][X]
-    pose.position.z = OBJECT_POSITIONS["target_1"][Z]
-    orientation = quaternion_from_euler(*PLACE_ORIENTATION_EULER)
-    pose.orientation.x = orientation[X]
-    pose.orientation.y = orientation[Y]
-    pose.orientation.z = orientation[Z]
-    pose.orientation.w = orientation[W]
+    # # PLACE
+    # place_object(name="target_3", arm=arm, gripper=gripper)
 
-    reach_pose(arm, pose)
-    open_gripper(gripper=gripper)
-    reach_pose(arm, pose)
-    arm.detach_object("target_1")
+    # # TARGET2
+    # # PICK
+    # pick_object(name="target_2", arm=arm, gripper=gripper)
 
-    ## TARGET3
-    # PICK
-    pose = Pose()
-    pose.position.x = OBJECT_POSITIONS["target_3"][X]
-    pose.position.y = OBJECT_POSITIONS["target_3"][Y] - 0.1
-    pose.position.z = OBJECT_POSITIONS["target_3"][Z]
-    orientation = quaternion_from_euler(*PICK_ORIENTATION_EULER)
-    pose.orientation.x = orientation[X]
-    pose.orientation.y = orientation[Y]
-    pose.orientation.z = orientation[Z]
-    pose.orientation.w = orientation[W]
+    # # PLACE
+    # place_object(name="target_2", arm=arm, gripper=gripper)
 
-    reach_pose(arm, pose)
-    open_gripper(gripper=gripper)
-    pose.position.y += 0.1
-    reach_pose(arm, pose)
+    # # TARGET4
+    # # PICK
+    # pick_object(name="target_4", arm=arm, gripper=gripper)
 
-    arm.attach_object("target_3")
-    close_gripper(gripper=gripper)
+    # # PLACE
+    # place_object(name="target_4", arm=arm, gripper=gripper, row=0)
 
-    # PLACE
-    pose.position.x = OBJECT_POSITIONS["target_3"][Y]
-    pose.position.y = OBJECT_POSITIONS["target_3"][X]
-    pose.position.z = OBJECT_POSITIONS["target_3"][Z]
-    orientation = quaternion_from_euler(*PLACE_ORIENTATION_EULER)
-    pose.orientation.x = orientation[X]
-    pose.orientation.y = orientation[Y]
-    pose.orientation.z = orientation[Z]
-    pose.orientation.w = orientation[W]
+    # # TARGET5
+    # # PICK
+    # pick_object(name="target_5", arm=arm, gripper=gripper)
 
-    reach_pose(arm, pose)
-    open_gripper(gripper=gripper)
-    reach_pose(arm, pose)
-    arm.detach_object("target_3")
+    # # PLACE
+    # place_object(name="target_5", arm=arm, gripper=gripper, row=0)
 
-    ## TARGET2
-    # PICK
-    pose = Pose()
-    pose.position.x = OBJECT_POSITIONS["target_2"][X]
-    pose.position.y = OBJECT_POSITIONS["target_2"][Y] - 0.1
-    pose.position.z = OBJECT_POSITIONS["target_2"][Z]
-    orientation = quaternion_from_euler(*PICK_ORIENTATION_EULER)
-    pose.orientation.x = orientation[X]
-    pose.orientation.y = orientation[Y]
-    pose.orientation.z = orientation[Z]
-    pose.orientation.w = orientation[W]
+    # # TARGET6
+    # # PICK
+    # pick_object(name="target_6", arm=arm, gripper=gripper)
 
-    reach_pose(arm, pose)
-    open_gripper(gripper=gripper)
-    pose.position.y += 0.1
-    reach_pose(arm, pose)
+    # # PLACE
+    # place_object(name="target_6", arm=arm, gripper=gripper, row=0)
 
-    arm.attach_object("target_2")
-    close_gripper(gripper=gripper)
-
-    # PLACE
-    pose.position.x = OBJECT_POSITIONS["target_2"][Y]
-    pose.position.y = OBJECT_POSITIONS["target_2"][X]
-    pose.position.z = OBJECT_POSITIONS["target_2"][Z]
-    orientation = quaternion_from_euler(*PLACE_ORIENTATION_EULER)
-    pose.orientation.x = orientation[X]
-    pose.orientation.y = orientation[Y]
-    pose.orientation.z = orientation[Z]
-    pose.orientation.w = orientation[W]
-
-    reach_pose(arm, pose)
-    open_gripper(gripper=gripper)
-    reach_pose(arm, pose)
-    arm.detach_object("target_2")
-
+    # reach_named_position(arm=arm, target="home")
 
 if __name__ == "__main__":
     main()
