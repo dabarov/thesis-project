@@ -1,9 +1,24 @@
 #!/usr/bin/env python
 
+import numpy
 import rospy
 import moveit_commander
 import gazebo_msgs.msg
+import geometry_msgs.msg
 import tf.transformations 
+
+
+def get_rotation_between(vec1, vec2):
+    vec1_norm = tf.transformations.unit_vector(vec1)
+    vec2_norm = tf.transformations.unit_vector(vec2)
+
+    if numpy.allclose(numpy.array(vec1_norm), numpy.negative(numpy.array(vec2_norm))):
+        return "dude"
+    half = tf.transformations.unit_vector(vec1_norm + vec2_norm)
+    x, y, z = numpy.cross(vec1_norm, half)
+    w = numpy.dot(vec1_norm, half)
+    return geometry_msgs.msg.Quaternion(x,y,z,w)
+
 
 
 def quaternion_actions():
@@ -30,6 +45,10 @@ def quaternion_actions():
     rotated_offset_vector = tf.transformations.quaternion_multiply(tf.transformations.quaternion_multiply(rotation_quat, [offset_vector_1[0], offset_vector_1[1], offset_vector_1[2], 0]), 
                                                                     rotation_quat_conj)
     print("rotated_offset:", rotated_offset_vector[:3])
+
+    print(get_rotation_between(offset_vector_1, offset_vector_2))
+    
+
 
 def robot_actions():
     robot = moveit_commander.RobotCommander()
