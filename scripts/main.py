@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
-from email import header
 import sys
 import math
 import rospy
 import moveit_commander
 import tf2_ros
 from tf2_geometry_msgs import PointStamped
+import gazebo_msgs
 from gazebo_msgs.msg import ModelState, LinkStates
 
 from gazebo_msgs.msg import ModelStates
@@ -136,78 +136,29 @@ def main():
     pick_orientation = quaternion_from_euler(-math.pi / 2, 0, 0)
     place_orientation = quaternion_from_euler(-math.pi / 2, 0, math.pi / 2)
     open_position = 0.9
-    close_position = 0.43
+    close_position = 0.5
 
     # look_at_table(arm, pick_orientation)
     # get_to_tomato_can(arm, pick_orientation)
     # move_gripper(gripper=gripper, position=open_position)
     # get_closer_to_tomato_can(arm, pick_orientation)
-    tf_buf = tf2_ros.Buffer()
-    tf_listener = tf2_ros.TransformListener(tf_buf)
-    src_pt = PoseStamped()
-    message = rospy.wait_for_message("/gazebo/model_states", ModelStates)
-    src_pt.header.frame_id = "base_link"
-    src_pt.pose = message.pose[message.name.index("tomato_soup_can_textured")]
-    print(src_pt)
-    rate = rospy.Rate(150)
-    while True:
-        try:
-            target_pt = tf_buf.transform(src_pt, "chassis_link")
-            break
-        except:
-            rate.sleep()
-    while True:
-        try:
-            target_pt = tf_buf.transform(target_pt, "mid_mount")
-            break
-        except:
-            rate.sleep()
-    while True:
-        try:
-            target_pt = tf_buf.transform(target_pt, "kinova_arm_base_link")
-            break
-        except:
-            rate.sleep()
-    while True:
-        try:
-            target_pt = tf_buf.transform(target_pt, "kinova_arm_end_effector_link")
-            break
-        except:
-            rate.sleep()
-    while True:
-        try:
-            target_pt = tf_buf.transform(target_pt, "kinova_arm_base_link")
-            break
-        except:
-            rate.sleep()
-    while True:
-        try:
-            target_pt = tf_buf.transform(target_pt, "mid_mount")
-            break
-        except:
-            rate.sleep()
-    while True:
-        try:
-            target_pt = tf_buf.transform(target_pt, "chassis_link")
-            break
-        except:
-            rate.sleep()
-    while True:
-        try:
-            target_pt = tf_buf.transform(target_pt, "base_link")
-            break
-        except:
-            rate.sleep()
-    print(target_pt)
-    pub.publish(model_state)
-
     
     # move_gripper(gripper=gripper, position=close_position)
     # lift_tomato_can(arm, pick_orientation)
     # move_tomato_can(arm, place_orientation)
-    # print(arm.get_current_pose())
-    # print(gripper.value())
+    print(arm.get_current_pose())
+    link_states = rospy.wait_for_message("/gazebo/link_states", gazebo_msgs.msg.LinkStates)
+    eef_link_name = "jackal::kinova_arm_end_effector_link"
+    eef_link_state_index = link_states.name.index(eef_link_name)
+    eef_pose = link_states.pose[eef_link_state_index]
 
+    base_link_name = "jackal::base_link"
+    base_link_state_index = link_states.name.index(base_link_name)
+    base_pose = link_states.pose[base_link_state_index]
+
+    print(eef_pose.position.x - base_pose.position.x,
+          eef_pose.position.y - base_pose.position.y,
+          eef_pose.position.z - base_pose.position.z,)
 
 
 if __name__ == "__main__":

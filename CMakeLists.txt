@@ -20,6 +20,7 @@ include_directories(
 catkin_install_python(PROGRAMS
   scripts/main.py
   scripts/box_to_hand.py
+  scripts/dev.py
   scripts/little_actions.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
