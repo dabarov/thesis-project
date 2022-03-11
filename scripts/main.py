@@ -52,7 +52,7 @@ def look_at_table(arm, orientation):
 
 def get_to_tomato_can(arm, orientation):
     pose = Pose()
-    pose.position.x = -0.0659186383706
+    pose.position.x = -0.0909186383706
     pose.position.y = 0.351257134702
     pose.position.z = 0.788471110169
     pose.orientation.x = orientation[0]
@@ -64,7 +64,7 @@ def get_to_tomato_can(arm, orientation):
     
 def get_closer_to_tomato_can(arm, orientation):
     pose = Pose()
-    pose.position.x = -0.0659186383706
+    pose.position.x = -0.0909186383706
     pose.position.y = 0.409357782211
     pose.position.z = 0.788471110169
     pose.orientation.x = orientation[0]
@@ -139,26 +139,26 @@ def main():
     close_position = 0.5
 
     # look_at_table(arm, pick_orientation)
-    # get_to_tomato_can(arm, pick_orientation)
-    # move_gripper(gripper=gripper, position=open_position)
-    # get_closer_to_tomato_can(arm, pick_orientation)
+    get_to_tomato_can(arm, pick_orientation)
+    move_gripper(gripper=gripper, position=open_position)
+    get_closer_to_tomato_can(arm, pick_orientation)
     
     # move_gripper(gripper=gripper, position=close_position)
     # lift_tomato_can(arm, pick_orientation)
     # move_tomato_can(arm, place_orientation)
-    print(arm.get_current_pose())
-    link_states = rospy.wait_for_message("/gazebo/link_states", gazebo_msgs.msg.LinkStates)
-    eef_link_name = "jackal::kinova_arm_end_effector_link"
-    eef_link_state_index = link_states.name.index(eef_link_name)
-    eef_pose = link_states.pose[eef_link_state_index]
+    # print(arm.get_current_pose())
+    # link_states = rospy.wait_for_message("/gazebo/link_states", gazebo_msgs.msg.LinkStates)
+    # eef_link_name = "jackal::kinova_arm_end_effector_link"
+    # eef_link_state_index = link_states.name.index(eef_link_name)
+    # eef_pose = link_states.pose[eef_link_state_index]
 
-    base_link_name = "jackal::base_link"
-    base_link_state_index = link_states.name.index(base_link_name)
-    base_pose = link_states.pose[base_link_state_index]
+    # base_link_name = "jackal::base_link"
+    # base_link_state_index = link_states.name.index(base_link_name)
+    # base_pose = link_states.pose[base_link_state_index]
 
-    print(eef_pose.position.x - base_pose.position.x,
-          eef_pose.position.y - base_pose.position.y,
-          eef_pose.position.z - base_pose.position.z,)
+    # print(eef_pose.position.x - base_pose.position.x,
+    #       eef_pose.position.y - base_pose.position.y,
+    #       eef_pose.position.z - base_pose.position.z,)
 
 
 if __name__ == "__main__":
