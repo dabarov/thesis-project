@@ -138,7 +138,7 @@ def main():
     open_position = 0.9
     close_position = 0.5
 
-    # look_at_table(arm, pick_orientation)
+    look_at_table(arm, pick_orientation)
     get_to_tomato_can(arm, pick_orientation)
     move_gripper(gripper=gripper, position=open_position)
     get_closer_to_tomato_can(arm, pick_orientation)
