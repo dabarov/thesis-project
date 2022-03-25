@@ -1,18 +1,12 @@
 #!/usr/bin/env python
-
-import sys
-import math
-import rospy
 import moveit_commander
-import tf2_ros
-from tf2_geometry_msgs import PointStamped
-import gazebo_msgs
-from gazebo_msgs.msg import ModelState, LinkStates
-
-from gazebo_msgs.msg import ModelStates
-from geometry_msgs.msg import Pose, PoseStamped
-from tf.transformations import quaternion_from_euler
-
+import sys
+import rospy
+import math
+import tf.transformations
+import gazebo_msgs.msg
+import geometry_msgs.msg
+import states
 
 def move_gripper(gripper, position):
     return gripper.move(gripper.max_bound() * position, True)
@@ -29,90 +23,10 @@ def reach_named_position(arm, target):
     arm.execute(arm.plan(), wait=True)
 
 
-def look_at_table(arm, orientation):
-    pose = Pose()
-    pose.position.x = -0.276568463654
-    pose.position.y = -0.0348770169619
-    pose.position.z = 0.825501871609
-    pose.orientation.x = orientation[0]
-    pose.orientation.y = orientation[1]
-    pose.orientation.z = orientation[2]
-    pose.orientation.w = orientation[3]
-    reach_pose(arm, pose)
-
-    pose = Pose()
-    pose.position.x = -0.0659186383706
-    pose.position.y = -0.0348770169619
-    pose.position.z = 0.825501871609
-    pose.orientation.x = orientation[0]
-    pose.orientation.y = orientation[1]
-    pose.orientation.z = orientation[2]
-    pose.orientation.w = orientation[3]
-    reach_pose(arm, pose)
-
-def get_to_tomato_can(arm, orientation):
-    pose = Pose()
-    pose.position.x = -0.0909186383706
-    pose.position.y = 0.351257134702
-    pose.position.z = 0.788471110169
-    pose.orientation.x = orientation[0]
-    pose.orientation.y = orientation[1]
-    pose.orientation.z = orientation[2]
-    pose.orientation.w = orientation[3]
-    reach_pose(arm, pose)
-
-    
-def get_closer_to_tomato_can(arm, orientation):
-    pose = Pose()
-    pose.position.x = -0.0909186383706
-    pose.position.y = 0.409357782211
-    pose.position.z = 0.788471110169
-    pose.orientation.x = orientation[0]
-    pose.orientation.y = orientation[1]
-    pose.orientation.z = orientation[2]
-    pose.orientation.w = orientation[3]
-    reach_pose(arm, pose)
-
-def lift_tomato_can(arm, orientation):
-    pose = Pose()
-    pose.position.x = -0.0699186383706
-    pose.position.y = 0.409357782211
-    pose.position.z = 0.838471110169
-    pose.orientation.x = orientation[0]
-    pose.orientation.y = orientation[1]
-    pose.orientation.z = orientation[2]
-    pose.orientation.w = orientation[3]
-    reach_pose(arm, pose)
-
-def move_tomato_can(arm, orientation):
-    pose = Pose()
-    pose.position.x = -0.276568463654
-    pose.position.y = -0.0348770169619
-    pose.position.z = 0.825501871609
-    pose.orientation.x = orientation[0]
-    pose.orientation.y = orientation[1]
-    pose.orientation.z = orientation[2]
-    pose.orientation.w = orientation[3]
-    reach_pose(arm, pose)
-
-pub = rospy.Publisher('/gazebo/set_model_state', ModelState, queue_size=10)
-
-def callback(data, args):
-    target_pt = args
-    tf_buf = tf2_ros.Buffer()
-    rate = rospy.Rate(150)
-
-   
-
-    model_state = ModelState()
-    model_state.model_name = "tomato_soup_can_textured"
-    model_state.pose = tf_buf.pose
-    model_state.reference_frame = "world"
-
 def main():
-    # Init roscpp node
+     # Init roscpp node
     moveit_commander.roscpp_initialize(sys.argv)
-    rospy.init_node("gen3_lite_moveit")
+    rospy.init_node("moveit_dev")
 
     # Robot and scene
     robot = moveit_commander.RobotCommander()
@@ -130,36 +44,69 @@ def main():
     arm.set_num_planning_attempts(30)
     arm.set_planning_time(30)
 
-    # Scene setup
-
     # Define literals
-    pick_orientation = quaternion_from_euler(-math.pi / 2, 0, 0)
-    place_orientation = quaternion_from_euler(-math.pi / 2, 0, math.pi / 2)
+    pick_orientation = tf.transformations.quaternion_from_euler(-math.pi / 2, 0, 0)
+    place_orientation = tf.transformations.quaternion_from_euler(-math.pi / 2, 0, math.pi / 2)
     open_position = 0.9
-    close_position = 0.5
+    close_position = 0.7
 
-    look_at_table(arm, pick_orientation)
-    get_to_tomato_can(arm, pick_orientation)
-    move_gripper(gripper=gripper, position=open_position)
-    get_closer_to_tomato_can(arm, pick_orientation)
+    # Models and link messages
+    link_states = rospy.wait_for_message("/gazebo/link_states", gazebo_msgs.msg.LinkStates)
+    model_states = rospy.wait_for_message("/gazebo/model_states", gazebo_msgs.msg.ModelStates) 
+
+    # EEF link pose in gazebo
+    eef_link_name = "jackal::kinova_arm_end_effector_link"
+    eef_link_state_index = link_states.name.index(eef_link_name)
+    eef_link_pose = link_states.pose[eef_link_state_index]
+
+    # EEF link in moveit
+    eef_moveit_pose = arm.get_current_pose()
+
+    # Target position to grasp
+    target_name = "tomato_soup_can_textured"
+    target_state_index = model_states.name.index(target_name)
+    target_pose = model_states.pose[target_state_index]
     
-    # move_gripper(gripper=gripper, position=close_position)
-    # lift_tomato_can(arm, pick_orientation)
-    # move_tomato_can(arm, place_orientation)
-    # print(arm.get_current_pose())
-    # link_states = rospy.wait_for_message("/gazebo/link_states", gazebo_msgs.msg.LinkStates)
-    # eef_link_name = "jackal::kinova_arm_end_effector_link"
-    # eef_link_state_index = link_states.name.index(eef_link_name)
-    # eef_pose = link_states.pose[eef_link_state_index]
+    # Offset position
+    offset_pose = geometry_msgs.msg.Pose()
+    offset_pose.position.x = target_pose.position.x - eef_link_pose.position.x
+    offset_pose.position.y = target_pose.position.y - eef_link_pose.position.y
+    offset_pose.position.z = target_pose.position.z - eef_link_pose.position.z
 
-    # base_link_name = "jackal::base_link"
-    # base_link_state_index = link_states.name.index(base_link_name)
-    # base_pose = link_states.pose[base_link_state_index]
+    # Target position with offset
+    target_pose = geometry_msgs.msg.Pose()
+    target_pose.position.x = eef_moveit_pose.pose.position.x + offset_pose.position.x
+    # IDK what this offset is but there it is
+    target_pose.position.y = eef_moveit_pose.pose.position.y + offset_pose.position.y
+    target_pose.position.z = eef_moveit_pose.pose.position.z + offset_pose.position.z
 
-    # print(eef_pose.position.x - base_pose.position.x,
-    #       eef_pose.position.y - base_pose.position.y,
-    #       eef_pose.position.z - base_pose.position.z,)
-
-
+    # Add pick orientation to target pose
+    target_pose.orientation.x = pick_orientation[0]
+    target_pose.orientation.y = pick_orientation[1]
+    target_pose.orientation.z = pick_orientation[2]
+    target_pose.orientation.w = pick_orientation[3]
+    
+    # Add pregrasping offset 
+    target_pose.position.y -= 0.2
+    target_pose.position.z += 0.05
+    #print(arm.get_current_joint_values())
+    arm.get_current_pose()
+    print(arm.go(states.LOOK_STATE))
+    print(reach_pose(arm=arm, pose=target_pose))
+    print(move_gripper(gripper=gripper, position=open_position))
+    print(arm.get_current_pose())
+    target_pose.position.y += 0.15
+    print(reach_pose(arm=arm, pose=target_pose))
+    print(move_gripper(gripper=gripper, position=close_position))
+    
+    # target_pose.position.y -= 0.2
+    # target_pose.position.x += 0.1
+    # target_pose.orientation.x = place_orientation[0]
+    # target_pose.orientation.y = place_orientation[1]
+    # target_pose.orientation.z = place_orientation[2]
+    # target_pose.orientation.w = place_orientation[3]
+    # print(reach_pose(arm=arm, pose=target_pose))
+    
 if __name__ == "__main__":
     main()
+

@@ -2,8 +2,8 @@
 
 import numpy
 import rospy
-from gazebo_msgs.msg import LinkState, LinkStates, ModelStates, ModelState
-from geometry_msgs.msg import Pose, PoseStamped
+from gazebo_msgs.msg import LinkStates, ModelStates, ModelState
+from geometry_msgs.msg import Pose
 import tf.transformations
 
 
