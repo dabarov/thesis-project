@@ -25,8 +25,8 @@ def reach_named_position(arm, target):
 
 def main():
      # Init roscpp node
-    moveit_commander.roscpp_initialize(sys.argv)
     rospy.init_node("moveit_dev")
+    moveit_commander.roscpp_initialize(sys.argv)
 
     # Robot and scene
     robot = moveit_commander.RobotCommander()
@@ -36,6 +36,7 @@ def main():
     gripper_joint_name = "kinova_arm_right_finger_bottom_joint"
     arm_group_name = "arm"
     arm = robot.get_group(arm_group_name)
+    arm.get_current_pose()
     gripper = robot.get_joint(gripper_joint_name)
 
     # Planning configs
@@ -43,6 +44,11 @@ def main():
     arm.set_planner_id("RRTConnect")
     arm.set_num_planning_attempts(30)
     arm.set_planning_time(30)
+    
+    # Initial State
+    arm.get_current_pose()
+    while not arm.go(states.LOOK_STATE):
+        pass
 
     # Define literals
     pick_orientation = tf.transformations.quaternion_from_euler(-math.pi / 2, 0, 0)
@@ -76,7 +82,6 @@ def main():
     # Target position with offset
     target_pose = geometry_msgs.msg.Pose()
     target_pose.position.x = eef_moveit_pose.pose.position.x + offset_pose.position.x
-    # IDK what this offset is but there it is
     target_pose.position.y = eef_moveit_pose.pose.position.y + offset_pose.position.y
     target_pose.position.z = eef_moveit_pose.pose.position.z + offset_pose.position.z
 
@@ -87,15 +92,14 @@ def main():
     target_pose.orientation.w = pick_orientation[3]
     
     # Add pregrasping offset 
-    target_pose.position.y -= 0.2
+    # target_pose.position.x -= 0.01
+    # target_pose.position.y -= 0.3
     target_pose.position.z += 0.05
     #print(arm.get_current_joint_values())
-    arm.get_current_pose()
-    print(arm.go(states.LOOK_STATE))
+    
     print(reach_pose(arm=arm, pose=target_pose))
     print(move_gripper(gripper=gripper, position=open_position))
-    print(arm.get_current_pose())
-    target_pose.position.y += 0.15
+    target_pose.position.y += 0.12
     print(reach_pose(arm=arm, pose=target_pose))
     print(move_gripper(gripper=gripper, position=close_position))
     
