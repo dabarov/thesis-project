@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  geometry_msgs
 )
 
 add_service_files(DIRECTORY srv FILES TargetOffsetPose.srv)
@@ -16,6 +17,7 @@ add_service_files(DIRECTORY srv FILES TargetOffsetPose.srv)
 generate_messages(
   DEPENDENCIES
   std_msgs
+  geometry_msgs
 )
 
 catkin_package()

@@ -5,6 +5,10 @@ import moveit_commander
 from kinova_moveit.srv import TargetOffsetPose
 
 
+def move_gripper(gripper, position):
+    return gripper.move(gripper.max_bound() * position, True)
+
+
 def reach_pose(arm, pose, tolerance=0.00001):
     arm.set_pose_target(pose)
     arm.set_goal_position_tolerance(tolerance)
@@ -16,14 +20,15 @@ def init():
     moveit_commander.roscpp_initialize(sys.argv)
 
 
-def handle(position):
-    rospy.loginfo(position)
+def handle(msg):
+    rospy.loginfo(msg)
     current_pose = arm.get_current_pose().pose
-    current_pose.position.x += position.x
-    current_pose.position.y += position.y
-    current_pose.position.z += position.z
+    current_pose.position.x += msg.offset.x
+    current_pose.position.y += msg.offset.y
+    current_pose.position.z += msg.offset.z
 
-    if reach_pose(arm=arm, pose=current_pose):
+    if move_gripper(gripper=gripper, position=msg.close) and \
+       reach_pose(arm=arm, pose=current_pose):
         return 1
     return -1
 
