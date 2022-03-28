@@ -5,40 +5,48 @@ import moveit_commander
 from kinova_moveit.srv import TargetOffsetPose
 
 
+def reach_pose(arm, pose, tolerance=0.00001):
+    arm.set_pose_target(pose)
+    arm.set_goal_position_tolerance(tolerance)
+    return arm.go(wait=True)
+
+
 def init():
     rospy.init_node("moveit_dev")
     moveit_commander.roscpp_initialize(sys.argv)
 
 
-def handle(req):
-    rospy.loginfo("HEY THERE")
-    rospy.loginfo(req)
-    return 1
+def handle(position):
+    rospy.loginfo(position)
+    current_pose = arm.get_current_pose().pose
+    current_pose.position.x += position.x
+    current_pose.position.y += position.y
+    current_pose.position.z += position.z
+
+    if reach_pose(arm=arm, pose=current_pose):
+        return 1
+    return -1
 
 
-def main():
-    # Literals
-    gripper_joint_name = "kinova_arm_right_finger_bottom_joint"
-    arm_group_name = "arm"
+# Main
+init()
 
-    # Move groups
-    robot = moveit_commander.RobotCommander()
-    arm = robot.get_group(arm_group_name)
-    gripper = robot.get_joint(gripper_joint_name)
+# Literals
+GRIPPER = "kinova_arm_right_finger_bottom_joint"
+ARM = "arm"
 
-    # Arm configs
-    arm.get_current_pose()
-    arm.set_pose_reference_frame("base_link")
-    arm.set_planner_id("RRTConnect")
-    arm.set_num_planning_attempts(30)
-    arm.set_planning_time(30)
+# Move groups
+robot = moveit_commander.RobotCommander()
+arm = robot.get_group(ARM)
+gripper = robot.get_joint(GRIPPER)
 
-    # Offset
-    rospy.Service("kinova_moveit/move", TargetOffsetPose, handle)
-    rospy.loginfo("Ready to move to target")
-    rospy.spin()
+# Arm configs
+arm.get_current_pose()
+arm.set_pose_reference_frame("base_link")
+arm.set_planner_id("RRTConnect")
+arm.set_num_planning_attempts(30)
+arm.set_planning_time(30)
 
-
-if __name__ == "__main__":
-    init()
-    main()
+rospy.Service("kinova_moveit/move", TargetOffsetPose, handle)
+rospy.loginfo("Ready to move to target")
+rospy.spin()
