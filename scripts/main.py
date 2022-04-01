@@ -97,11 +97,11 @@ def main():
     target_pose.position.z += 0.05
     #print(arm.get_current_joint_values())
     
-    print(reach_pose(arm=arm, pose=target_pose))
-    print(move_gripper(gripper=gripper, position=open_position))
-    target_pose.position.y += 0.12
-    print(reach_pose(arm=arm, pose=target_pose))
-    print(move_gripper(gripper=gripper, position=close_position))
+    # print(reach_pose(arm=arm, pose=target_pose))
+    # print(move_gripper(gripper=gripper, position=open_position))
+    # target_pose.position.y += 0.12
+    # print(reach_pose(arm=arm, pose=target_pose))
+    # print(move_gripper(gripper=gripper, position=close_position))
     
     # target_pose.position.y -= 0.2
     # target_pose.position.x += 0.1

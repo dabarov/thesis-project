@@ -12,10 +12,13 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
 )
 
-add_service_files(DIRECTORY srv FILES TargetOffsetPose.srv)
+add_service_files(DIRECTORY srv FILES 
+  TargetOffsetPose.srv
+  Grab.srv
+  Release.srv  
+)
 
-generate_messages(
-  DEPENDENCIES
+generate_messages(DEPENDENCIES
   std_msgs
   geometry_msgs
 )
@@ -31,6 +34,8 @@ catkin_install_python(PROGRAMS
   scripts/box_to_hand.py
   scripts/dev.py
   scripts/little_actions.py
-  scripts/move_server.py
+  scripts/servers/move_server.py
+  scripts/servers/grab_server.py
+  scripts/servers/release_server.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
