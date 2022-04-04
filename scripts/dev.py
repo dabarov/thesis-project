@@ -46,9 +46,9 @@ def main():
     arm.set_planning_time(30)
     
     # Initial State
-    # arm.get_current_pose()
-    # while not arm.go(states.LOOK_STATE):
-    #     pass
+    arm.get_current_pose()
+    while not arm.go(states.LOOK_STATE):
+        pass
 
     # Define literals
     pick_orientation = tf.transformations.quaternion_from_euler(-math.pi / 2, 0, 0)
@@ -103,13 +103,13 @@ def main():
     # print(reach_pose(arm=arm, pose=target_pose))
     # print(move_gripper(gripper=gripper, position=close_position))
     
-    target_pose.position.z += 0.1
-    print(reach_pose(arm=arm, pose=target_pose))
-    target_pose.position.x += 0.1
-    print(reach_pose(arm=arm, pose=target_pose))
-    target_pose.position.z -= 0.1
-    print(reach_pose(arm=arm, pose=target_pose))
-    print(move_gripper(gripper=gripper, position=open_position))
+    # target_pose.position.z += 0.1
+    # print(reach_pose(arm=arm, pose=target_pose))
+    # target_pose.position.x += 0.1
+    # print(reach_pose(arm=arm, pose=target_pose))
+    # target_pose.position.z -= 0.1
+    # print(reach_pose(arm=arm, pose=target_pose))
+    # print(move_gripper(gripper=gripper, position=open_position))
     
     
 if __name__ == "__main__":
