@@ -53,19 +53,3 @@ if __name__ == '__main__':
             node_to_kill = [node_name for node_name in node_names if node_name.startswith("/box_to_hand")]
             os.system("rosnode kill %s" % node_to_kill[0])  # implement your custom stop method using the roslaunch API
             package_launched = False
-
-# Main
-# rospy.init_node("grab_server")
-# rospy.Service("kinova_moveit/grab", Grab, handle)
-
-# node = roslaunch.core.Node("kinova_moveit", "box_to_hand.py")
-# launch = roslaunch.scriptapi.ROSLaunch()
-# launch.start()
-# process = launch.launch(node)
-
-# rospy.loginfo("started")
-
-# while process.is_alive():
-#     print("HEY")
-# print("NO")
-# rospy.spin()
