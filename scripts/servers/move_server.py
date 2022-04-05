@@ -21,7 +21,6 @@ def init():
 
 
 def handle(msg):
-    rospy.loginfo(msg)
     current_pose = arm.get_current_pose().pose
     current_pose.position.x += msg.offset.x
     current_pose.position.y += msg.offset.y

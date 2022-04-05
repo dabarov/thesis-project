@@ -68,8 +68,9 @@ def main():
 
     model_states = rospy.wait_for_message("/gazebo/model_states", ModelStates)
     object_name = "tomato_soup_can_textured"
-    if len(sys.argv) == 2:
+    if len(sys.argv) > 1:
         object_name = sys.argv[1]
+    rospy.loginfo(object_name)
     object_state_index = model_states.name.index(object_name)
     object_pose = model_states.pose[object_state_index]
     rospy.Subscriber("/gazebo/link_states", LinkStates, callback, [eef_pose, object_pose, object_name])
