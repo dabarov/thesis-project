@@ -36,6 +36,5 @@ catkin_install_python(PROGRAMS
   scripts/little_actions.py
   scripts/servers/move_server.py
   scripts/servers/grab_server.py
-  scripts/servers/release_server.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
