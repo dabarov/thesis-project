@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import numpy
+import sys
 import rospy
 from gazebo_msgs.msg import LinkStates, ModelStates, ModelState
 from geometry_msgs.msg import Pose
@@ -13,6 +14,7 @@ pub = rospy.Publisher('/gazebo/set_model_state', ModelState, queue_size=10)
 def callback(data, args):
     initial_eef_pose = args[0]
     initial_object_pose = args[1]
+    object_name = args[2]
 
     initial_eef_quat = [initial_eef_pose.orientation.x,
                     initial_eef_pose.orientation.y,
@@ -52,7 +54,7 @@ def callback(data, args):
 
     new_object_state = ModelState()
     new_object_state.pose = new_object_pose
-    new_object_state.model_name = "tomato_soup_can_textured"
+    new_object_state.model_name = object_name
     new_object_state.reference_frame = "world"
     pub.publish(new_object_state)
 
@@ -66,9 +68,11 @@ def main():
 
     model_states = rospy.wait_for_message("/gazebo/model_states", ModelStates)
     object_name = "tomato_soup_can_textured"
+    if len(sys.argv) == 2:
+        object_name = sys.argv[1]
     object_state_index = model_states.name.index(object_name)
     object_pose = model_states.pose[object_state_index]
-    rospy.Subscriber("/gazebo/link_states", LinkStates, callback, [eef_pose, object_pose])
+    rospy.Subscriber("/gazebo/link_states", LinkStates, callback, [eef_pose, object_pose, object_name])
     rospy.spin()
 
 
