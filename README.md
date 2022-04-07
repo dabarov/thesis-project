@@ -71,11 +71,11 @@ Run grab server:
 ### Call move service
 
 ```sh
-    rosservice call /kinova_moveit/move "offset:
-    x: 0.0
-    y: 0.1
-    z: 0.0
-    close: 0.9"
+rosservice call /kinova_moveit/move "offset: 
+  x: 0.0  
+  y: 0.1  
+  z: 0.0  
+close: 0.9"
 ```
 
 ```close``` here is position of the gripper. ```x, y, z``` are offsets from the current position of the gripper.
