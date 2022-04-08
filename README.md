@@ -6,23 +6,23 @@
  - Install `ros_kortex` prerequisites:
 
 ```sh
-    sudo apt install python3 python3-pip
-    sudo python3 -m pip install conan
-    conan config set general.revisions_enabled=1
-    conan profile new default --detect > /dev/null
-    conan profile update settings.compiler.libcxx=libstdc++11 default
+sudo apt install python3 python3-pip
+sudo python3 -m pip install conan
+conan config set general.revisions_enabled=1
+conan profile new default --detect > /dev/null
+conan profile update settings.compiler.libcxx=libstdc++11 default
 ```
 
  - Install ros dependencies (run in workspace folder):
 
 ```sh
-    rosdep install --from-paths src --ignore-src -y
+rosdep install --from-paths src --ignore-src -y
 ```
  - Build workspace and source it:
 
 ```sh
-    catkin_make
-    source devel/setup.bash # setup.zsh if you use zsh
+catkin_make
+source devel/setup.bash # setup.zsh if you use zsh
 ```
 
 ## Launch environment
@@ -30,40 +30,40 @@
 ### Launch office world
 
 ```sh
-    roslaunch gen3lite_pickplace office_world_spawner.launch
+roslaunch gen3lite_pickplace office_world_spawner.launch
 ```
 
 ### Launch moveit
 
 ```sh
-    roslaunch my_moveit_pkg move_group.launch
+roslaunch my_moveit_pkg move_group.launch
 ```
 
 ### Spawn table and objects
 
 ```sh
-    roslaunch gen3lite_pickplace spawn_table.launch
-    roslaunch gen3lite_pickplace spawn_objects_to_pick.launch
+roslaunch gen3lite_pickplace spawn_table.launch
+roslaunch gen3lite_pickplace spawn_objects_to_pick.launch
 ```
 
 ### Move gripper to initial position
 
 ```sh
-    rosrun kinova_moveit dev.py 
+rosrun kinova_moveit dev.py 
 ```
 
 ### Run services
 
-Run move server:
+ - Run move server:
 
 ```sh
-    rosrun kinova_moveit move_server.py
+rosrun kinova_moveit move_server.py
 ```
 
-Run grab server:
+ - Run grab server:
 
 ```sh
-    rosrun kinova_moveit grab_server.py
+rosrun kinova_moveit grab_server.py
 ```
 
 ## Usage
@@ -71,7 +71,7 @@ Run grab server:
 ### Call move service
 
 ```sh
-rosservice call /kinova_moveit/move "offset: 
+ - rosservice call /kinova_moveit/move "offset: 
   x: 0.0  
   y: 0.1  
   z: 0.0  
@@ -82,14 +82,14 @@ close: 0.9"
 
 ### Call grab and release services
 
-To grab certain object use:
+ - To grab certain object use:
 
 ```sh
-    rosservice call /kinova_moveit/grab "targetName: 'orange'"
+rosservice call /kinova_moveit/grab "targetName: 'orange'"
 ```
 
-    To release current object in the gripper run:
+ - To release current object in the gripper run:
 
 ```sh
-    rosservice call /kinova_moveit/release "{}"
+rosservice call /kinova_moveit/release "{}"
 ```
