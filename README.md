@@ -71,7 +71,7 @@ rosrun kinova_moveit grab_server.py
 ### Call move service
 
 ```sh
- - rosservice call /kinova_moveit/move "offset: 
+ rosservice call /kinova_moveit/move "offset: 
   x: 0.0  
   y: 0.1  
   z: 0.0  
