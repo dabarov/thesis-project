@@ -38,3 +38,9 @@ catkin_install_python(PROGRAMS
   scripts/servers/grab_server.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+
+add_executable(client src/client.cpp)
+
+target_link_libraries(client ${catkin_LIBRARIES})
+
+add_dependencies(client kinova_moveit_gencpp)

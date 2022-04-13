@@ -1,4 +1,5 @@
 geometry_msgs/Point offset
+int8 state
 float32 close
 ---
 int8 success
