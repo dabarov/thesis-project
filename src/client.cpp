@@ -15,16 +15,28 @@ int main(int argc, char **argv)
   ros::ServiceClient release_client = n3.serviceClient<kinova_moveit::Release>("/kinova_moveit/release");
 
   // Move client
-  kinova_moveit::TargetOffsetPose move_srv; 
+  kinova_moveit::TargetOffsetPose move_srv;
   move_srv.request.close = 0.9;
   move_srv.request.offset.x = 0.0;
   move_srv.request.offset.y = 0.1;
   move_srv.request.offset.z = 0.0;
   move_client.call(move_srv);
-  
+
   // Grab client
-  kinova_moveit::Grab grab_srv; 
+  kinova_moveit::Grab grab_srv;
   grab_srv.request.targetName = "orange";
-  grap_client.call(move_srv);
+  grap_client.call(grab_srv);
+
+  // Move client
+  move_srv.request.close = 0.5;
+  move_srv.request.offset.x = 0.0;
+  move_srv.request.offset.y = 0.1;
+  move_srv.request.offset.z = 0.0;
+  move_client.call(move_srv);
+
+  // Release
+  kinova_moveit::Release release_srv;
+  release_client.call(release_srv);
+
   return 0;
 }
