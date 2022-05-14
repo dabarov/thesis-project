@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 add_service_files(DIRECTORY srv FILES 
+  Act.srv
   TargetOffsetPose.srv
   Grab.srv
   Release.srv  
@@ -36,6 +37,7 @@ catkin_install_python(PROGRAMS
   scripts/little_actions.py
   scripts/servers/move_server.py
   scripts/servers/grab_server.py
+  scripts/servers/api_server.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
