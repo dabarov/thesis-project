@@ -5,11 +5,18 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib
   actionlib_msgs
   gazebo
+  geometry_msgs
   message_generation
+  pcl_conversions
+  pcl_ros
   roscpp
   rospy
   std_msgs
-  geometry_msgs
+)
+
+add_message_files(
+  FILES 
+  TargetObjectPcl.msg
 )
 
 add_service_files(DIRECTORY srv FILES 
@@ -28,6 +35,7 @@ catkin_package()
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
 )
 
 catkin_install_python(PROGRAMS
@@ -42,6 +50,9 @@ catkin_install_python(PROGRAMS
 )
 
 add_executable(client src/client.cpp)
+
+add_executable(publish_pcl_params src/getPclParams.cpp)
+target_link_libraries(publish_pcl_params ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 target_link_libraries(client ${catkin_LIBRARIES})
 

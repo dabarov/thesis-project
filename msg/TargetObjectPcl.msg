@@ -1,0 +1,3 @@
+geometry_msgs/Point centroid
+geometry_msgs/Point boundingBoxAA
+geometry_msgs/Point boundingBoxBB
