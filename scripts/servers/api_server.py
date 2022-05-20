@@ -16,6 +16,7 @@ GRASP = "GRASP"
 COMMANDS ={MOVE_HOME, GRASP}
 
 GRIPPER = "kinova_arm_right_finger_bottom_joint"
+GRIPPER_GROUP = "gripper"
 ARM = "arm"
 
 HOME_STATE = [-1.4784168770355182, -1.33056374371529, -0.677311965393744, 1.4564286586729214, -2.2202823107249765, -1.636241076589057]
@@ -25,6 +26,7 @@ robot = moveit_commander.RobotCommander()
 scene = moveit_commander.PlanningSceneInterface()
 arm = robot.get_group(ARM)
 gripper = robot.get_joint(GRIPPER)
+gripper_group = robot.get_group(GRIPPER_GROUP)
 
 arm.set_planner_id("RRTConnect")
 arm.set_num_planning_attempts(30)
@@ -47,6 +49,11 @@ def reach_pose(arm, pose, tolerance=0.00001):
     return arm.go(wait=True)
 
 
+def reach_named_position(group, target):
+    group.set_named_target(target)
+    group.execute(group.plan(), wait=True)
+
+
 def get_bounding_box_size(boundingBoxAA, boundingBoxBB):
     size = [0, 0, 0]
     size[0] = abs(boundingBoxAA.x - boundingBoxBB.x)
@@ -56,8 +63,8 @@ def get_bounding_box_size(boundingBoxAA, boundingBoxBB):
 
 
 def grasp():
+    reach_named_position(gripper_group, "opened")
     params = rospy.wait_for_message("/kinova_moveit/pcl_params", TargetObjectPcl, timeout=10)
-
     tf_buffer = tf2_ros.Buffer(rospy.Duration(100.0))
     tf2_ros.TransformListener(tf_buffer)
     transform = tf_buffer.lookup_transform('base_link',
@@ -90,14 +97,14 @@ def grasp():
     pose_transformed.pose.orientation.y = PICK_ORIENTATION[1]
     pose_transformed.pose.orientation.z = PICK_ORIENTATION[2]
     pose_transformed.pose.orientation.w = PICK_ORIENTATION[3]
-    reach_pose(arm=arm, pose=pose_transformed)
-    box_pose = pose_transformed
-    box_pose.pose.orientation.x = 0
-    box_pose.pose.orientation.y = 0
-    box_pose.pose.orientation.z = 0
-    box_pose.pose.orientation.w = 1
-    box_pose.header.frame_id = robot.get_planning_frame()
-    scene.add_box("target", box_pose, tuple(size))
+    if reach_pose(arm=arm, pose=pose_transformed):
+        box_pose = pose_transformed
+        box_pose.pose.orientation.x = 0
+        box_pose.pose.orientation.y = 0
+        box_pose.pose.orientation.z = 0
+        box_pose.pose.orientation.w = 1
+        box_pose.header.frame_id = robot.get_planning_frame()
+        scene.add_box("target", box_pose, tuple(size))
 
 
 
