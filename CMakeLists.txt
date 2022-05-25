@@ -4,7 +4,6 @@ project(kinova_moveit)
 find_package(catkin REQUIRED COMPONENTS
   actionlib
   actionlib_msgs
-  gazebo
   geometry_msgs
   message_generation
   pcl_conversions
@@ -21,9 +20,10 @@ add_message_files(
 
 add_service_files(DIRECTORY srv FILES 
   Act.srv
-  TargetOffsetPose.srv
+  Find.srv
   Grab.srv
   Release.srv  
+  TargetOffsetPose.srv
 )
 
 generate_messages(DEPENDENCIES
@@ -46,6 +46,7 @@ catkin_install_python(PROGRAMS
   scripts/servers/move_server.py
   scripts/servers/grab_server.py
   scripts/servers/api_server.py
+  scripts/servers/find_server.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
