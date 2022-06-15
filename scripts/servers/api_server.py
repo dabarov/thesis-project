@@ -10,23 +10,22 @@ from kinova_moveit.srv import Act
 from kinova_moveit.msg import TargetObjectPcl
 from geometry_msgs.msg import Point, PoseStamped
 
-
 MOVE_HOME = "MOVE_HOME"
 GRASP = "GRASP"
-COMMANDS ={MOVE_HOME, GRASP}
+COMMANDS = {MOVE_HOME, GRASP}
 
-GRIPPER = "kinova_arm_right_finger_bottom_joint"
+# GRIPPER = "kinova_arm_right_finger_bottom_joint"
 GRIPPER_GROUP = "gripper"
-ARM = "arm"
+ARM = "manipulator"
 
-HOME_STATE = [-1.4784168770355182, -1.33056374371529, -0.677311965393744, 1.4564286586729214, -2.2202823107249765, -1.636241076589057]
+HOME_STATE = [-4.121431299531221, 1.6010068431269513, 1.0524811740617386, 5.280673400664791, -4.870985093466171, -0.1311371491618747]
 PICK_ORIENTATION = [-0.707, 0, 0, 0.707]
 
 robot = moveit_commander.RobotCommander()
 scene = moveit_commander.PlanningSceneInterface()
 arm = robot.get_group(ARM)
-gripper = robot.get_joint(GRIPPER)
-gripper_group = robot.get_group(GRIPPER_GROUP)
+# gripper = robot.get_joint(GRIPPER)
+gripper = robot.get_group(GRIPPER_GROUP)
 
 arm.set_planner_id("RRTConnect")
 arm.set_num_planning_attempts(30)
@@ -63,7 +62,7 @@ def get_bounding_box_size(boundingBoxAA, boundingBoxBB):
 
 
 def grasp():
-    reach_named_position(gripper_group, "opened")
+    reach_named_position(gripper, "opened")
     params = rospy.wait_for_message("/kinova_moveit/pcl_params", TargetObjectPcl, timeout=10)
     tf_buffer = tf2_ros.Buffer(rospy.Duration(100.0))
     tf2_ros.TransformListener(tf_buffer)
@@ -107,7 +106,6 @@ def grasp():
         scene.add_box("target", box_pose, tuple(size))
 
 
-
 def handle(msg):
     if msg.command == MOVE_HOME:
         move_home()
@@ -123,7 +121,6 @@ def main():
     rospy.Service("kinova_moveit/api", Act, handle)
     rospy.loginfo("Enter one of the available commands: MOVE_HOME, GRASP")
     rospy.spin()
-
 
 
 if __name__ == "__main__":
