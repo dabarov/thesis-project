@@ -12,19 +12,22 @@ from geometry_msgs.msg import Point, PoseStamped
 
 MOVE_HOME = "MOVE_HOME"
 GRASP = "GRASP"
+MOVE_PLACE_STATE = "MOVE_PLACE_STATE"
 COMMANDS = {MOVE_HOME, GRASP}
 
 # GRIPPER = "kinova_arm_right_finger_bottom_joint"
 GRIPPER_GROUP = "gripper"
 ARM = "manipulator"
 
-HOME_STATE = [-4.121431299531221, 1.6010068431269513, 1.0524811740617386, 5.280673400664791, -4.870985093466171, -0.1311371491618747]
+HOME_STATE = [-4.121431299531221, 1.6010068431269513, 1.0524811740617386, 5.280673400664791, -4.870985093466171,
+              -0.1311371491618747]
+PLACE_STATE = [6.774238705193099, 3.7263403158864445, 0.8769228225284031, 7.782850652124967, 1.611786760478065,
+               9.193715893303324]
 PICK_ORIENTATION = [-0.707, 0, 0, 0.707]
 
 robot = moveit_commander.RobotCommander()
 scene = moveit_commander.PlanningSceneInterface()
 arm = robot.get_group(ARM)
-# gripper = robot.get_joint(GRIPPER)
 gripper = robot.get_group(GRIPPER_GROUP)
 
 arm.set_planner_id("RRTConnect")
@@ -39,6 +42,11 @@ def init():
 
 def move_home():
     while not arm.go(HOME_STATE):
+        continue
+
+
+def move_place_state():
+    while not arm.go(PLACE_STATE):
         continue
 
 
@@ -62,7 +70,7 @@ def get_bounding_box_size(boundingBoxAA, boundingBoxBB):
 
 
 def grasp():
-    reach_named_position(gripper, "opened")
+    reach_named_position(gripper, "open")
     params = rospy.wait_for_message("/kinova_moveit/pcl_params", TargetObjectPcl, timeout=10)
     tf_buffer = tf2_ros.Buffer(rospy.Duration(100.0))
     tf2_ros.TransformListener(tf_buffer)
@@ -96,19 +104,28 @@ def grasp():
     pose_transformed.pose.orientation.y = PICK_ORIENTATION[1]
     pose_transformed.pose.orientation.z = PICK_ORIENTATION[2]
     pose_transformed.pose.orientation.w = PICK_ORIENTATION[3]
-    if reach_pose(arm=arm, pose=pose_transformed):
-        box_pose = pose_transformed
-        box_pose.pose.orientation.x = 0
-        box_pose.pose.orientation.y = 0
-        box_pose.pose.orientation.z = 0
-        box_pose.pose.orientation.w = 1
-        box_pose.header.frame_id = robot.get_planning_frame()
-        scene.add_box("target", box_pose, tuple(size))
+    box_pose = pose_transformed
+    box_pose.pose.orientation.x = 0
+    box_pose.pose.orientation.y = 0
+    box_pose.pose.orientation.z = 0
+    box_pose.pose.orientation.w = 1
+    box_pose.header.frame_id = robot.get_planning_frame()
+    scene.add_box("target", box_pose, tuple(size))
+    for _ in range(5):
+        if reach_pose(arm=arm, pose=pose_transformed):
+            result = True
+            break
+        else:
+            result = False
+    return result
 
 
 def handle(msg):
     if msg.command == MOVE_HOME:
         move_home()
+        return "Move command completed"
+    if msg.command == MOVE_PLACE_STATE:
+        move_place_state()
         return "Move command completed"
     if msg.command == GRASP:
         grasp()

@@ -44,7 +44,7 @@ if __name__ == '__main__':
     rospy.init_node('moveit_grab')
     robot = moveit_commander.RobotCommander()
     scene = moveit_commander.PlanningSceneInterface()
-    arm = robot.get_group("arm")
+    arm = robot.get_group("manipulator")
     start_package_service = rospy.Service('kinova_moveit/grab', Grab, lambda req: start_package(req, queue, target_q))
     stop_package_service = rospy.Service('kinova_moveit/release', Release, lambda req: stop_package(req, queue, target_q))
     launch = roslaunch.scriptapi.ROSLaunch()

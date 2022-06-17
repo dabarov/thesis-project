@@ -25,7 +25,7 @@ def callback(data, args):
                     initial_object_pose.orientation.y,
                     initial_object_pose.orientation.z,
                     initial_object_pose.orientation.w]                
-    index = data.name.index("jackal::kinova_arm_end_effector_link")
+    index = data.name.index("jackal::kinova_arm_link_6")
     current_eef_pose = data.pose[index]
     current_quat = [current_eef_pose.orientation.x,
                     current_eef_pose.orientation.y,
@@ -62,12 +62,12 @@ def callback(data, args):
 def main():
     rospy.init_node('item_to_gripper', anonymous=True)
     link_states = rospy.wait_for_message("/gazebo/link_states", LinkStates)
-    eef_link_name = "jackal::kinova_arm_end_effector_link"
+    eef_link_name = "jackal::kinova_arm_link_6"
     eef_link_state_index = link_states.name.index(eef_link_name)
     eef_pose = link_states.pose[eef_link_state_index]
 
     model_states = rospy.wait_for_message("/gazebo/model_states", ModelStates)
-    object_name = "tomato_soup_can_textured"
+    object_name = "mustard_bottle_textured"
     if len(sys.argv) > 1:
         object_name = sys.argv[1]
     rospy.loginfo(object_name)
